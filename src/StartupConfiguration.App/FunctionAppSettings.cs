@@ -18,6 +18,7 @@ namespace StartupConfiguration.App
 
         }
 
+        [Required]
         public string RequiredSetting { get; set; }
 
         [MustHaveKey("en", ErrorMessage = "The English Setting is required")]

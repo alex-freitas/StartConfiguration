@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StartupConfiguration.App;
+using StartupConfiguration.App.IoC;
 
 [assembly: FunctionsStartup(typeof(StartupConfiguration.FunctionApp.Startup))]
 namespace StartupConfiguration.FunctionApp
@@ -11,14 +12,13 @@ namespace StartupConfiguration.FunctionApp
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            var configuration = new ConfigurationBuilder().GetRequiredJsonConfiguration("local.settings.json");
-
             var services = builder.Services;
 
-            var appSettings = services
-                .ConfigureAndValidateOptions<FunctionAppSettings>(configuration);
+            var configuration = StartupManager.GetConfiguration();
+
+            var appSettings = services.ConfigureSettings<FunctionAppSettings>(configuration);
 
             services.AddTransient<IAppService, AppService>();
-        }       
+        }        
     }
 }

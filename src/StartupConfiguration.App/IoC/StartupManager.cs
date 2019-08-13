@@ -5,19 +5,29 @@ using StartupConfiguration.App;
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace StartupConfiguration.App 
+namespace StartupConfiguration.App.IoC
 {
-    public static class StartupExtensions
-    { 
-        public static IConfigurationRoot GetRequiredJsonConfiguration(this IConfigurationBuilder configurationBuilder, string path)
+    public static class StartupManager
+    {
+        public static IConfiguration GetConfiguration()
         {
-            return configurationBuilder
+            return new ConfigurationBuilder()
+                .AddEnvironmentVariables()
+                .Build();
+        }
+
+        public static IConfigurationRoot GetRequiredJsonConfiguration(string path)
+        {
+            return new ConfigurationBuilder()
                 .SetBasePath(Environment.CurrentDirectory)
                 .AddJsonFile(path, false, true)
                 .Build();
         }
-        
-        public static T ConfigureAndValidateOptionsDataAnnotations<T>(this IServiceCollection services, IConfigurationRoot configuration) where T : class
+
+        #region Extensions
+
+
+        public static T ConfigureAndValidateOptionsDataAnnotations<T>(this IServiceCollection services, IConfiguration configuration) where T : class
         {
             var configurationSection = configuration.GetSection("Values");
             var optionsBuilder = services
@@ -29,16 +39,18 @@ namespace StartupConfiguration.App
             return options;
         }
 
-        public static T ConfigureAndValidateOptions<T>(this IServiceCollection services, IConfigurationRoot configuration) where T : class
+        public static T ConfigureAndValidateOptions<T>(this IServiceCollection services, IConfiguration configuration) where T : class
         {
-            var configurationSection = configuration.GetSection("Values");
-            var options = configurationSection.GetValid<T>();
+            services.Configure<T>(configuration);
 
-            var optionsBuilder = services
-                .AddOptions<T>()
-                .Bind(configurationSection);
+            return configuration.GetValid<T>();           
+        }
 
-            return options;
+        public static T ConfigureSettings<T>(this IServiceCollection services, IConfiguration configuration) where T : class 
+        {
+            services.Configure<T>(configuration);
+
+            return configuration.Get<T>(); 
         }
 
         private static T ValidateOptionsDataAnnotations<T>(this OptionsBuilder<T> optionsBuilder, IServiceCollection services) where T : class
@@ -56,7 +68,7 @@ namespace StartupConfiguration.App
             return options;
         }
 
-        
+
         private static T GetValid<T>(this IConfiguration configuration)
         {
             /* https://stackoverflow.com/a/54989674 */
@@ -64,5 +76,8 @@ namespace StartupConfiguration.App
             Validator.ValidateObject(obj, new ValidationContext(obj), true);
             return obj;
         }
+
+        #endregion
+
     }
 }

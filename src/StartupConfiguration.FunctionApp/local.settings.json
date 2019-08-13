@@ -1,12 +1,16 @@
 {
     "IsEncrypted": false,
 
+   
+
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
-    "RequiredSetting": "Lorem",
-
+    "RequiredSetting": "Loremxyz",
     "RequiredRegionalizedSetting": "{'en': 'Lorem English', 'es': 'Lorem Español', 'fr': 'Lorem Français', 'pt-br': 'Lorem Brasileiro'}"
+
+
+
   }
 
 }
